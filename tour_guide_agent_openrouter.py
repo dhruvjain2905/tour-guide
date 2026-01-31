@@ -3,7 +3,7 @@ import math
 import json
 import time
 from typing import Annotated
-from langchain_anthropic import ChatAnthropic
+from langchain_openai import ChatOpenAI
 from langchain_community.tools.tavily_search import TavilySearchResults
 from langchain_core.tools import tool, StructuredTool
 from langgraph.graph import StateGraph, START, END
@@ -214,7 +214,7 @@ You're not listing places - you're telling the story of where they're standing.
 
 Keep the final content relatively concise, and depth is preferreed over breadth. Focus on a few key highlights rather than overwhelming with too many details.
 Remember that this is being read aloud, so clarity and flow are important, and it should feel like natural human narration.
-That being said, do not search or spend time learning about many places. In your flow, just focus on two-three places and research them well. Try to be quick as the user is walking. 
+That being said, do not search or spend time learning about many places. In your flow, just focus on two-three places and research them well. Try to be quick as the user is walking.
 """
 
 
@@ -236,9 +236,12 @@ def create_tour_guide_agent(user_lat: float, user_lon: float, user_heading: floa
     tools = [search_tool, tavily_tool]
     tool_node = ToolNode(tools)
 
-    model = ChatAnthropic(
-        model="claude-sonnet-4-20250514",
-        temperature=0.7
+    # Using OpenRouter to access Claude
+    model = ChatOpenAI(
+        model="anthropic/claude-sonnet-4.5",
+        temperature=0.7,
+        base_url="https://openrouter.ai/api/v1",
+        api_key=os.getenv("OPENROUTER_API_KEY"),
     ).bind_tools(tools)
 
     def should_continue(state: TourGuideState):
@@ -396,7 +399,7 @@ if __name__ == "__main__":
     test_lon = -71.4015215
     test_heading = 0  # Facing North
 
-    print("Starting tour guide...\n")
+    print("Starting tour guide (OpenRouter)...\n")
     print("=" * 60)
 
     tour = run_tour(test_lat, test_lon, test_heading, stream=False)
