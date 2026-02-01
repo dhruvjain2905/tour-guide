@@ -74,5 +74,7 @@ def get_places(latitude, longitude, radius=80.0):
     return places
 
 
+get_places(41.8261395, -71.4045595, 80.0)
+
 
 
