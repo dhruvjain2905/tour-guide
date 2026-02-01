@@ -12,7 +12,7 @@ from langgraph.prebuilt import ToolNode
 from typing_extensions import TypedDict
 from pydantic import BaseModel, Field
 from dotenv import load_dotenv
-from location_claude import get_places, user_preferences
+from location_claude import get_places
 
 
 # --- Structured Output Models ---
@@ -468,7 +468,8 @@ def run_tour(
     longitude: float,
     heading: float = 0.0,
     previous_summary: str | None = None,
-    stream: bool = True
+    stream: bool = True,
+    user_preferences: str | None = None
 ) -> dict:
     """
     Run the tour guide for a given location.
@@ -479,10 +480,16 @@ def run_tour(
         heading: User's facing direction in degrees (0=North, default)
         previous_summary: Summary of the tour so far (None if starting fresh)
         stream: If True, print live output for debugging
+        user_preferences: User's preferences text (if None, uses defaults)
 
     Returns:
         dict with 'tour' (TourOutput with narrative and places), and 'summary' (for next segment)
     """
+    # Use default preferences if none provided
+    if user_preferences is None:
+        from location_claude import user_preferences as default_prefs
+        user_preferences = default_prefs
+
     total_start = time.time()
 
     # Track timing for each step
